@@ -1,0 +1,33 @@
+{
+  "name": "express-request-validator",
+  "version": "1.0.0",
+  "description": "Lightweight Express.js middleware for declarative request validation with schema-based rules",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "express",
+    "middleware",
+    "validation",
+    "validator",
+    "schema",
+    "request",
+    "api"
+  ],
+  "author": "Gulden Yildirim",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Guldenyil/express-request-validator.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "dependencies": {}
+}
