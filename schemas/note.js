@@ -10,7 +10,7 @@
 const createNoteSchema = {
   title: {
     required: true,
-    type: 'string',
+    // type: "string",
     minLength: 1,
     maxLength: 200,
     trim: true,
@@ -18,13 +18,13 @@ const createNoteSchema = {
   },
   content: {
     required: true,
-    type: 'string',
+    // type: "string",
     maxLength: 10000,
     errorMessage: 'Content is required and must not exceed 10000 characters'
   },
   category: {
     required: false,
-    type: 'string',
+    // type: "string",
     maxLength: 50,
     trim: true,
     custom: (value) => {
@@ -38,7 +38,7 @@ const createNoteSchema = {
   },
   color: {
     required: false,
-    type: 'string',
+    // type: "string",
     pattern: /^#[0-9A-Fa-f]{6}$/,
     errorMessage: 'Color must be in hex format (#RRGGBB)'
   },
@@ -64,7 +64,7 @@ const createNoteSchema = {
 const updateNoteSchema = {
   title: {
     required: false,
-    type: 'string',
+    // type: "string",
     minLength: 1,
     maxLength: 200,
     trim: true,
@@ -72,19 +72,19 @@ const updateNoteSchema = {
   },
   content: {
     required: false,
-    type: 'string',
+    // type: "string",
     maxLength: 10000,
     errorMessage: 'Content must not exceed 10000 characters'
   },
   category: {
     required: false,
-    type: 'string',
+    // type: "string",
     maxLength: 50,
     trim: true
   },
   color: {
     required: false,
-    type: 'string',
+    // type: "string",
     pattern: /^#[0-9A-Fa-f]{6}$/,
     errorMessage: 'Color must be in hex format (#RRGGBB)'
   },
@@ -107,26 +107,26 @@ const updateNoteSchema = {
 const noteQuerySchema = {
   category: {
     required: false,
-    type: 'string',
+    // type: "string",
     maxLength: 50,
     trim: true
   },
   isPinned: {
     required: false,
-    type: 'string',
+    // type: "string",
     pattern: /^(true|false)$/i,
     transform: (value) => value.toLowerCase() === 'true',
     errorMessage: 'isPinned must be "true" or "false"'
   },
   search: {
     required: false,
-    type: 'string',
+    // type: "string",
     maxLength: 200,
     trim: true
   },
   sortBy: {
     required: false,
-    type: 'string',
+    // type: "string",
     custom: (value) => {
       const validFields = ['createdAt', 'updatedAt', 'title', 'created_at', 'updated_at'];
       if (value && !validFields.includes(value)) {
@@ -138,7 +138,7 @@ const noteQuerySchema = {
   },
   order: {
     required: false,
-    type: 'string',
+    // type: "string",
     pattern: /^(asc|desc)$/i,
     transform: (value) => value ? value.toLowerCase() : 'desc',
     default: 'desc',
@@ -174,10 +174,13 @@ const noteQuerySchema = {
 const noteIdSchema = {
   id: {
     required: true,
-    type: 'string',
-    pattern: /^\d+$/,
-    transform: (value) => parseInt(value, 10),
-    errorMessage: 'Note ID must be a valid number'
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      if (isNaN(num)) {
+        throw new Error('Note ID must be a valid number');
+      }
+      return num;
+    }
   }
 };
 
