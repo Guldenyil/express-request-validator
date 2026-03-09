@@ -3,12 +3,15 @@
  * Lightweight middleware for declarative request validation
  */
 
-const validate = require('./lib/validate');
-const validators = require('./lib/validators');
-const schemas = require('./schemas/note');
+import validate from './lib/validate.js';
+import * as validators from './lib/validators.js';
 
-module.exports = {
+export {
   validate,
-  validators,
-  schemas
+  validators
+};
+
+export default {
+  validate,
+  validators
 };

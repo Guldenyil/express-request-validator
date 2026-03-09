@@ -22,8 +22,8 @@ npm install express-request-validator
 ## Quick Start
 
 ```javascript
-const express = require('express');
-const { validate } = require('express-request-validator');
+import express from 'express';
+import { validate } from 'express-request-validator';
 
 const app = express();
 app.use(express.json());
@@ -264,15 +264,60 @@ When validation fails, the middleware returns a 400 Bad Request with:
 ### Basic CRUD Operations
 
 ```javascript
-const express = require('express');
-const { validate, schemas } = require('express-request-validator');
+import express from 'express';
+import { validate } from 'express-request-validator';
 
 const app = express();
 app.use(express.json());
 
+const createNoteSchema = {
+  title: { required: true, minLength: 1, maxLength: 200, trim: true },
+  content: { required: true, maxLength: 10000 }
+};
+
+const updateNoteSchema = {
+  title: { required: false, minLength: 1, maxLength: 200, trim: true },
+  content: { required: false, maxLength: 10000 }
+};
+
+const noteIdSchema = {
+  id: {
+    required: true,
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      if (isNaN(num)) throw new Error('id must be a valid number');
+      return num;
+    }
+  }
+};
+
+const noteQuerySchema = {
+  page: {
+    required: false,
+    type: 'number',
+    min: 1,
+    default: 1,
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      return isNaN(num) ? 1 : num;
+    }
+  },
+  limit: {
+    required: false,
+    type: 'number',
+    min: 1,
+    max: 100,
+    default: 10,
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      return isNaN(num) ? 10 : num;
+    }
+  }
+};
+
 // Create
 app.post('/api/notes', 
-  validate(schemas.createNoteSchema),
+  validate(createNoteSchema),
   (req, res) => {
     const note = req.body; // Validated and sanitized
     res.status(201).json({ success: true, data: note });
@@ -281,7 +326,7 @@ app.post('/api/notes',
 
 // Read (with query filters)
 app.get('/api/notes',
-  validate(schemas.noteQuerySchema, { source: 'query' }),
+  validate(noteQuerySchema, { source: 'query' }),
   (req, res) => {
     const { category, isPinned, page, limit } = req.query;
     res.json({ success: true, data: [] });
@@ -290,8 +335,8 @@ app.get('/api/notes',
 
 // Update (partial)
 app.put('/api/notes/:id',
-  validate(schemas.noteIdSchema, { source: 'params' }),
-  validate(schemas.updateNoteSchema, { partial: true }),
+  validate(noteIdSchema, { source: 'params' }),
+  validate(updateNoteSchema, { partial: true }),
   (req, res) => {
     const id = req.params.id;
     const updates = req.body;
@@ -301,7 +346,7 @@ app.put('/api/notes/:id',
 
 // Delete
 app.delete('/api/notes/:id',
-  validate(schemas.noteIdSchema, { source: 'params' }),
+  validate(noteIdSchema, { source: 'params' }),
   (req, res) => {
     const id = req.params.id;
     res.json({ success: true, message: 'Deleted' });
@@ -354,21 +399,16 @@ app.post('/api/notes',
 );
 ```
 
-## Predefined Schemas
+## Schema Reuse
 
-The package includes ready-to-use schemas for common use cases:
+For larger projects, keep reusable schemas in your own codebase and import them where needed.
 
 ```javascript
-const { schemas } = require('express-request-validator');
+import { validate } from 'express-request-validator';
+import { createNoteSchema } from './schemas/note-schema.js';
 
-// Available schemas:
-// - schemas.createNoteSchema
-// - schemas.updateNoteSchema
-// - schemas.noteQuerySchema
-// - schemas.noteIdSchema
+app.post('/api/notes', validate(createNoteSchema), handler);
 ```
-
-See [schemas/note.js](schemas/note.js) for details.
 
 ## Advanced Usage
 

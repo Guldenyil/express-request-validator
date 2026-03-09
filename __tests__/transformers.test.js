@@ -2,7 +2,8 @@
  * Tests for data transformation utilities
  */
 
-const { trim, toNumber, toBoolean, applyTransform } = require('../lib/transformers');
+import { jest } from '@jest/globals';
+import { trim, toNumber, toBoolean, applyTransform } from '../lib/transformers.js';
 
 describe('Transformers', () => {
   describe('trim', () => {

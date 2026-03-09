@@ -2,11 +2,15 @@
   "name": "express-request-validator",
   "version": "1.0.0",
   "description": "Lightweight Express.js middleware for declarative request validation with schema-based rules",
+  "type": "module",
   "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage"
   },
   "keywords": [
     "express",
@@ -34,7 +38,6 @@
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
       "lib/**/*.js",
-      "schemas/**/*.js",
       "index.js"
     ]
   },

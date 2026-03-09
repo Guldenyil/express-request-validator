@@ -2,7 +2,7 @@
  * Tests for error formatting utilities
  */
 
-const { formatError, createErrorResponse } = require('../lib/errors');
+import { formatError, createErrorResponse } from '../lib/errors.js';
 
 describe('Error Utilities', () => {
   describe('formatError', () => {

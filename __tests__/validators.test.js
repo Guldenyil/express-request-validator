@@ -2,7 +2,8 @@
  * Tests for validator functions
  */
 
-const {
+import { jest } from '@jest/globals';
+import {
   required,
   type,
   minLength,
@@ -13,7 +14,7 @@ const {
   minItems,
   maxItems,
   custom
-} = require('../lib/validators');
+} from '../lib/validators.js';
 
 describe('Validators', () => {
   describe('required', () => {

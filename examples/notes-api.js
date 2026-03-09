@@ -2,14 +2,106 @@
  * Example usage of note validation schemas
  */
 
-const express = require('express');
-const { validate } = require('../index');
-const {
-  createNoteSchema,
-  updateNoteSchema,
-  noteQuerySchema,
-  noteIdSchema
-} = require('../schemas/note');
+import express from 'express';
+import { validate } from '../index.js';
+
+const createNoteSchema = {
+  title: {
+    required: true,
+    minLength: 1,
+    maxLength: 200,
+    trim: true,
+    errorMessage: 'Title is required and must be between 1-200 characters'
+  },
+  content: {
+    required: true,
+    maxLength: 10000,
+    errorMessage: 'Content is required and must not exceed 10000 characters'
+  },
+  category: {
+    required: false,
+    maxLength: 50,
+    trim: true
+  },
+  color: {
+    required: false,
+    pattern: /^#[0-9A-Fa-f]{6}$/,
+    errorMessage: 'Color must be in hex format (#RRGGBB)'
+  },
+  isPinned: {
+    required: false,
+    type: 'boolean',
+    default: false,
+    transform: (value) => {
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+      }
+      return value;
+    }
+  }
+};
+
+const updateNoteSchema = {
+  title: {
+    required: false,
+    minLength: 1,
+    maxLength: 200,
+    trim: true,
+    errorMessage: 'Title must be between 1-200 characters'
+  },
+  content: {
+    required: false,
+    maxLength: 10000,
+    errorMessage: 'Content must not exceed 10000 characters'
+  }
+};
+
+const noteQuerySchema = {
+  category: {
+    required: false,
+    maxLength: 50,
+    trim: true
+  },
+  isPinned: {
+    required: false,
+    pattern: /^(true|false)$/i,
+    transform: (value) => value.toLowerCase() === 'true'
+  },
+  page: {
+    required: false,
+    type: 'number',
+    min: 1,
+    default: 1,
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      return isNaN(num) ? 1 : num;
+    }
+  },
+  limit: {
+    required: false,
+    type: 'number',
+    min: 1,
+    max: 100,
+    default: 10,
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      return isNaN(num) ? 10 : num;
+    }
+  }
+};
+
+const noteIdSchema = {
+  id: {
+    required: true,
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      if (isNaN(num)) {
+        throw new Error('Note ID must be a valid number');
+      }
+      return num;
+    }
+  }
+};
 
 const app = express();
 app.use(express.json());

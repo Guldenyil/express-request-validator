@@ -2,7 +2,8 @@
  * Tests for main validation middleware
  */
 
-const validate = require('../lib/validate');
+import { jest } from '@jest/globals';
+import validate from '../lib/validate.js';
 
 describe('Validation Middleware', () => {
   let req, res, next;

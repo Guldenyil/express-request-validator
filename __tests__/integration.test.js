@@ -2,10 +2,138 @@
  * Integration tests for the complete validation middleware
  */
 
-const express = require('express');
-const request = require('supertest');
-const { validate } = require('../index');
-const { createNoteSchema, updateNoteSchema, noteQuerySchema } = require('../schemas/note');
+import express from 'express';
+import request from 'supertest';
+import { validate } from '../index.js';
+
+const createNoteSchema = {
+  title: {
+    required: true,
+    minLength: 1,
+    maxLength: 200,
+    trim: true,
+    errorMessage: 'Title is required and must be between 1-200 characters'
+  },
+  content: {
+    required: true,
+    maxLength: 10000,
+    errorMessage: 'Content is required and must not exceed 10000 characters'
+  },
+  category: {
+    required: false,
+    maxLength: 50,
+    trim: true
+  },
+  color: {
+    required: false,
+    pattern: /^#[0-9A-Fa-f]{6}$/,
+    errorMessage: 'Color must be in hex format (#RRGGBB)'
+  },
+  isPinned: {
+    required: false,
+    type: 'boolean',
+    default: false,
+    transform: (value) => {
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+      }
+      return value;
+    }
+  }
+};
+
+const updateNoteSchema = {
+  title: {
+    required: false,
+    minLength: 1,
+    maxLength: 200,
+    trim: true,
+    errorMessage: 'Title must be between 1-200 characters'
+  },
+  content: {
+    required: false,
+    maxLength: 10000,
+    errorMessage: 'Content must not exceed 10000 characters'
+  },
+  category: {
+    required: false,
+    maxLength: 50,
+    trim: true
+  },
+  color: {
+    required: false,
+    pattern: /^#[0-9A-Fa-f]{6}$/,
+    errorMessage: 'Color must be in hex format (#RRGGBB)'
+  },
+  isPinned: {
+    required: false,
+    type: 'boolean',
+    transform: (value) => {
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+      }
+      return value;
+    }
+  }
+};
+
+const noteQuerySchema = {
+  category: {
+    required: false,
+    maxLength: 50,
+    trim: true
+  },
+  isPinned: {
+    required: false,
+    type: 'boolean',
+    transform: (value) => value.toLowerCase() === 'true',
+    errorMessage: 'isPinned must be "true" or "false"'
+  },
+  search: {
+    required: false,
+    maxLength: 200,
+    trim: true
+  },
+  sortBy: {
+    required: false,
+    custom: (value) => {
+      const validFields = ['createdAt', 'updatedAt', 'title', 'created_at', 'updated_at'];
+      if (value && !validFields.includes(value)) {
+        return `sortBy must be one of: ${validFields.join(', ')}`;
+      }
+      return true;
+    },
+    default: 'created_at'
+  },
+  order: {
+    required: false,
+    pattern: /^(asc|desc)$/i,
+    transform: (value) => value ? value.toLowerCase() : 'desc',
+    default: 'desc',
+    errorMessage: 'order must be "asc" or "desc"'
+  },
+  page: {
+    required: false,
+    type: 'number',
+    min: 1,
+    default: 1,
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      return isNaN(num) ? 1 : num;
+    }
+  },
+  limit: {
+    required: false,
+    type: 'number',
+    min: 1,
+    max: 100,
+    default: 10,
+    transform: (value) => {
+      const num = parseInt(value, 10);
+      return isNaN(num) ? 10 : num;
+    }
+  }
+};
 
 describe('Integration Tests', () => {
   let app;
@@ -180,7 +308,7 @@ describe('Integration Tests', () => {
       app.get('/api/notes',
         validate(noteQuerySchema, { source: 'query' }),
         (req, res) => {
-          res.json({ success: true, filters: req.query });
+          res.json({ success: true, filters: req.validated?.query || req.query });
         }
       );
     });
